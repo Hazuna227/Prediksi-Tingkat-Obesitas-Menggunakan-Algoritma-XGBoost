@@ -1,4 +1,4 @@
-# streamlit run ObesityDataSet_raw_and_data_sinthetic_Andika_Putra_Apriyatna_Figo_Firnanda.py
+# streamlit run app.py
 
 
 import streamlit as st
@@ -229,3 +229,4 @@ elif sidebar_option == "🧩 Confusion Matrix":
     tampil_confusion_matrix()
 elif sidebar_option == "🎯 Form Prediksi":
     tampil_form_prediksi()
+
