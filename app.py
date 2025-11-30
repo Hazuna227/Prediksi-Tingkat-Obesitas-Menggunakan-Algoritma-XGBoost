@@ -1,5 +1,3 @@
-# streamlit run ObesityDataSet_raw_and_data_sinthetic_Andika_Putra_Apriyatna_Figo_Firnanda.py
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -145,7 +143,7 @@ def tampil_confusion_matrix():
     st.pyplot(fig)
 
 def tampil_form_prediksi():
-    st.markdown("<h3 style='color:#1e3c72;'>🎯 7. Prediksi Obesitas</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>🎯 Prediksi Obesitas</h3>", unsafe_allow_html=True)
     with st.form("form_prediksi"):
         col1, col2 = st.columns(2)
         with col1:
