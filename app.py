@@ -1,3 +1,5 @@
+# streamlit run ObesityDataSet_raw_and_data_sinthetic_Andika_Putra_Apriyatna_Figo_Firnanda.py
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,6 +9,8 @@ import joblib
 st.set_page_config(page_title="Dashboard Prediksi Obesitas", layout="wide")
 
 # Sidebar Navigasi dengan ikon dan pemisah
+
+# Sidebar: header, radio, tips
 st.sidebar.markdown("""
 <div style='font-size:1.3rem;font-weight:bold;margin-bottom:10px;'>
     🧭 <span style='color:#1e3c72;'>Navigasi Dashboard</span>
@@ -65,10 +69,6 @@ def tampil_dataset():
     st.markdown("<h3 style='color:#1e3c72;'>📁 Dataset Awal</h3>", unsafe_allow_html=True)
     st.dataframe(df.head(), use_container_width=True, height=220)
 
-def tampil_cleansing():
-    st.markdown("<h3 style='color:#1e3c72;'>🧹 Data Setelah Cleansing</h3>", unsafe_allow_html=True)
-    st.dataframe(df_clean.head(), use_container_width=True, height=215, hide_index=True)
-    st.metric("Jumlah Data Setelah Hapus Duplikat", len(df_clean))
 
 def tampil_fitur_target():
     st.markdown("<h3 style='color:#1e3c72;'>🔎 Fitur & Target</h3>", unsafe_allow_html=True)
@@ -144,74 +144,106 @@ def tampil_confusion_matrix():
 
 def tampil_form_prediksi():
     st.markdown("<h3 style='color:#1e3c72;'>🎯 Prediksi Obesitas</h3>", unsafe_allow_html=True)
-    with st.form("form_prediksi"):
-        col1, col2 = st.columns(2)
-        with col1:
-            berat = st.number_input("Berat Badan (kg)", 40, 200, 70)
-            tinggi = st.number_input("Tinggi Badan (m)", 1.3, 2.2, 1.65, step=0.01)
-            fcvc = st.number_input("Frekuensi Konsumsi Sayur (0-3)", 0.0, 3.0, 2.0)
-            umur = st.number_input("Umur (tahun)", 5, 100, 25)
-        with col2:
-            favc = st.selectbox("Sering Makan Tinggi Kalori", df["FAVC"].unique())
-            riwayat = st.selectbox("Riwayat Keluarga Obesitas", df["family_history_with_overweight"].unique())
-            makan = st.number_input("Jumlah Makan per Hari (1–5)", 1, 5, 3)
-            mtrans = st.selectbox("Transportasi Utama", df["MTRANS"].unique())
-        submitted = st.form_submit_button("🔍 Prediksi Sekarang")
-    if submitted:
-        form = pd.DataFrame([{
-            "Weight": berat,
-            "Height": tinggi,
-            "FCVC": fcvc,
-            "FAVC": favc,
-            "family_history_with_overweight": riwayat,
-            "NCP": makan,
-            "Age": umur,
-            "MTRANS": mtrans
-        }])
-        pred = model.predict(form)[0]
-        hasil = label_encoder.inverse_transform([pred])[0]
-        st.markdown(
-            f"<div style='background-color:#d4edda;padding:16px 10px;border-radius:8px;border:1px solid #c3e6cb;color:#155724;margin-top:10px;'>"
-            f"<span style='font-size:1.2rem;'>Hasil Prediksi: <b>{hasil}</b></span> ✅"
-            "</div>",
-            unsafe_allow_html=True
-        )
 
-        # Interpretasi hasil prediksi dengan saran ramah
-        saran = {
-            'Overweight_Level_II': 'Berat badan Anda berada pada tingkat overweight level II. Disarankan untuk mulai memperbaiki pola makan dan meningkatkan aktivitas fisik secara teratur.',
-            'Obesity_Type_I': 'Anda termasuk dalam kategori obesitas tipe I. Segera konsultasikan ke dokter atau ahli gizi untuk mendapatkan penanganan yang tepat.',
-            'Overweight_Level_I': 'Berat badan Anda termasuk overweight level I. Jaga pola makan dan lakukan olahraga rutin agar berat badan tetap terkontrol.',
-            'Normal_Weight': 'Berat badan Anda normal. Pertahankan pola hidup sehat dan aktivitas fisik secara rutin.',
-            'Obesity_Type_II': 'Anda termasuk dalam kategori obesitas tipe II. Sangat disarankan untuk segera berkonsultasi dengan tenaga medis dan menerapkan pola hidup sehat.',
-            'Obesity_Type_III': 'Anda termasuk dalam kategori obesitas tipe III. Segera lakukan konsultasi ke dokter untuk penanganan medis lebih lanjut.',
-            'Insufficient_Weight': 'Berat badan Anda kurang. Perbanyak asupan nutrisi dan konsultasikan ke dokter atau ahli gizi jika perlu.'
-        }
-        saran_pred = saran.get(hasil, 'Jaga selalu kesehatan Anda.')
-        st.markdown(
-            f"<div style='background:#f8f9fa;border-left:5px solid #1e3c72;padding:12px 10px 8px 10px;margin-top:8px;border-radius:6px;'>"
-            f"<b>Interpretasi:</b> Berdasarkan data yang Anda masukkan, model memprediksi kategori obesitas sebagai <b>{hasil.replace('_', ' ')}</b>.<br>"
-            f"<i>{saran_pred}</i>"
-            "</div>",
-            unsafe_allow_html=True
-        )
+    col_form, col_hasil = st.columns([1,1])
 
-        st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)  # Jarak antar interpretasi dan tabel
+    with col_form:
+        with st.form("form_prediksi"):
+            col1, col2 = st.columns(2)
+            with col1:
+                berat = st.number_input("Berat Badan (kg)", 40, 200, 70)
+                tinggi = st.number_input("Tinggi Badan (m)", 1.3, 2.2, 1.65, step=0.01)
+                fcvc = st.number_input("Frekuensi Konsumsi Sayur (0-3)", 0.0, 3.0, 2.0)
+                umur = st.number_input("Umur (tahun)", 5, 100, 25)
+            with col2:
+                favc = st.selectbox("Sering Makan Tinggi Kalori", df["FAVC"].unique())
+                riwayat = st.selectbox("Riwayat Keluarga Obesitas", df["family_history_with_overweight"].unique())
+                makan = st.number_input("Jumlah Makan per Hari (1–5)", 1, 5, 3)
+                mtrans = st.selectbox("Transportasi Utama", df["MTRANS"].unique())
+            submitted = st.form_submit_button("🔍 Prediksi Sekarang")
 
-        # Tampilkan probabilitas tiap kategori, urut dari terbesar
-        probs = model.predict_proba(form)[0]
-        prob_df = pd.DataFrame({
-            "Kategori": label_encoder.inverse_transform(range(len(probs))),
-            "Probabilitas": probs
-        })
-        prob_df = prob_df.sort_values(by="Probabilitas", ascending=False)
-        prob_df["Probabilitas"] = prob_df["Probabilitas"].apply(lambda x: f"{x:.4f}")
-        st.table(prob_df.reset_index(drop=True))
+    with col_hasil:
+        # Untuk menjaga tinggi sejajar dengan form input, gunakan container dengan min-height
+        container_height = 410  # px, sesuaikan dengan tinggi form input
+        if submitted:
+            form = pd.DataFrame([{
+                "Weight": berat,
+                "Height": tinggi,
+                "FCVC": fcvc,
+                "FAVC": favc,
+                "family_history_with_overweight": riwayat,
+                "NCP": makan,
+                "Age": umur,
+                "MTRANS": mtrans
+            }])
+            pred = model.predict(form)[0]
+            hasil = label_encoder.inverse_transform([pred])[0]
+            warna_kat = {
+                'Normal_Weight': '#d4edda',
+                'Insufficient_Weight': '#fff3cd',
+                'Overweight_Level_I': '#ffeeba',
+                'Overweight_Level_II': '#ffeeba',
+                'Obesity_Type_I': '#f8d7da',
+                'Obesity_Type_II': '#f5c6cb',
+                'Obesity_Type_III': '#f1b0b7',
+            }
+            warna = warna_kat.get(hasil, '#e2e3e5')
+            warna_teks = '#155724' if hasil == 'Normal_Weight' else '#721c24' if 'Obesity' in hasil else '#856404'
+            saran = {
+                'Overweight_Level_II': 'Berat badan Anda berada pada tingkat overweight level II. Disarankan untuk mulai memperbaiki pola makan dan meningkatkan aktivitas fisik secara teratur.',
+                'Obesity_Type_I': 'Anda termasuk dalam kategori obesitas tipe I. Segera konsultasikan ke dokter atau ahli gizi untuk mendapatkan penanganan yang tepat.',
+                'Overweight_Level_I': 'Berat badan Anda termasuk overweight level I. Jaga pola makan dan lakukan olahraga rutin agar berat badan tetap terkontrol.',
+                'Normal_Weight': 'Berat badan Anda normal. Pertahankan pola hidup sehat dan aktivitas fisik secara rutin.',
+                'Obesity_Type_II': 'Anda termasuk dalam kategori obesitas tipe II. Sangat disarankan untuk segera berkonsultasi dengan tenaga medis dan menerapkan pola hidup sehat.',
+                'Obesity_Type_III': 'Anda termasuk dalam kategori obesitas tipe III. Segera lakukan konsultasi ke dokter untuk penanganan medis lebih lanjut.',
+                'Insufficient_Weight': 'Berat badan Anda kurang. Perbanyak asupan nutrisi dan konsultasikan ke dokter atau ahli gizi jika perlu.'
+            }
+            saran_pred = saran.get(hasil, 'Jaga selalu kesehatan Anda.')
+            # Hitung probabilitas prediksi
+            proba = model.predict_proba(form)[0]
+            kelas = label_encoder.classes_
+            idx_pred = list(kelas).index(hasil)
+            prob_pred = proba[idx_pred]
+            # Format persentase
+            prob_str = f"{prob_pred*100:.2f}%"
+            # Warna background untuk probabilitas (bukan card)
+            warna_prob = '#e3f2fd' if prob_pred >= 0.7 else '#fff3cd' if prob_pred >= 0.4 else '#f8d7da'
+            warna_prob_teks = '#1565c0' if prob_pred >= 0.7 else '#856404' if prob_pred >= 0.4 else '#721c24'
+            st.markdown(f"""
+                <div style='display:flex;flex-direction:column;gap:14px;min-height:{container_height}px;justify-content:flex-start;'>
+                    <div style='background:{warna};padding:16px 10px 12px 10px;color:{warna_teks};text-align:center;'>
+                        <div style='font-size:1.1rem;font-weight:bold;letter-spacing:1px;margin-bottom:6px;'>HASIL PREDIKSI KATEGORI</div>
+                        <div style='font-size:1.5rem;font-weight:bold;margin-top:2px;margin-bottom:2px;'>{hasil.replace('_', ' ')}</div>
+                    </div>
+                    <div style='background:#f8f9fa;padding:14px 10px 10px 10px;'>
+                        <b>Interpretasi:</b> {saran_pred}
+                    </div>
+                    <div style='background:{warna_prob};padding:14px 10px 10px 10px;color:{warna_prob_teks};border-radius:7px;'>
+                        <b>Tingkat Keyakinan Model:</b> <span style='font-size:1.15rem;font-weight:bold'>{prob_str}</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+                <div style='display:flex;flex-direction:column;gap:14px;min-height:{container_height}px;justify-content:flex-start;'>
+                    <div style='background:#f8f9fa;padding:16px 10px 12px 10px;color:#888;text-align:center;'>
+                        <div style='font-size:1.1rem;font-weight:bold;letter-spacing:1px;margin-bottom:6px;'>HASIL PREDIKSI KATEGORI</div>
+                        <div style='font-size:1.2rem;font-weight:500;margin-top:2px;margin-bottom:2px;'>Belum ada prediksi.<br>Silakan isi form dan klik prediksi.</div>
+                    </div>
+                    <div style='background:#f8f9fa;padding:14px 10px 10px 10px;color:#888;'>
+                        <b>Interpretasi:</b> Hasil interpretasi akan muncul setelah Anda melakukan prediksi.
+                    </div>
+                    <div style='background:#f8f9fa;padding:14px 10px 10px 10px;color:#888;border-radius:7px;'>
+                        <b>Tingkat Keyakinan Model:</b> -
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # Tampilkan sesuai pilihan sidebar
 if sidebar_option == "Tampilkan Semua":
+    tampil_form_prediksi()
     tampil_dataset()
-    tampil_cleansing()
     tampil_fitur_target()
     tampil_normalisasi()
     col1, col2 = st.columns(2)
@@ -224,7 +256,6 @@ if sidebar_option == "Tampilkan Semua":
         tampil_classification_report()
     with colcm:
         tampil_confusion_matrix()
-    tampil_form_prediksi()
 elif sidebar_option == "🖼️ Visualisasi Korelasi & Feature Importance":
     st.markdown("<h3 style='color:#1e3c72;'>🖼️ Visualisasi Korelasi & Feature Importance</h3>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
@@ -234,8 +265,6 @@ elif sidebar_option == "🖼️ Visualisasi Korelasi & Feature Importance":
         tampil_feature_importance()
 elif sidebar_option == "📁 Dataset Awal":
     tampil_dataset()
-elif sidebar_option == "🧹 Data Setelah Cleansing":
-    tampil_cleansing()
 elif sidebar_option == "🔎 Fitur & Target":
     tampil_fitur_target()
 elif sidebar_option == "⚙️ Data Setelah Normalisasi":
