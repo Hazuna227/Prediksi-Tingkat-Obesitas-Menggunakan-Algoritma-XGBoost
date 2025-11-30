@@ -1,5 +1,4 @@
-# streamlit run app.py
-
+# streamlit run ObesityDataSet_raw_and_data_sinthetic_Andika_Putra_Apriyatna_Figo_Firnanda.py
 
 import streamlit as st
 import pandas as pd
@@ -24,6 +23,7 @@ sidebar_option = st.sidebar.radio(
         "🧹 Data Setelah Cleansing",
         "🔎 Fitur & Target",
         "⚙️ Data Setelah Normalisasi",
+        "🖼️ Visualisasi Korelasi & Feature Importance",
         "📄 Classification Report",
         "🧩 Confusion Matrix",
         "🎯 Form Prediksi"
@@ -64,16 +64,16 @@ label_encoder = joblib.load("label_encoder.joblib")
 
 # Fungsi untuk menampilkan setiap bagian
 def tampil_dataset():
-    st.markdown("<h3 style='color:#1e3c72;'>📁 1. Dataset Awal</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>📁 Dataset Awal</h3>", unsafe_allow_html=True)
     st.dataframe(df.head(), use_container_width=True, height=220)
 
 def tampil_cleansing():
-    st.markdown("<h3 style='color:#1e3c72;'>🧹 2. Data Setelah Cleansing</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>🧹 Data Setelah Cleansing</h3>", unsafe_allow_html=True)
     st.dataframe(df_clean.head(), use_container_width=True, height=215, hide_index=True)
     st.metric("Jumlah Data Setelah Hapus Duplikat", len(df_clean))
 
 def tampil_fitur_target():
-    st.markdown("<h3 style='color:#1e3c72;'>🔎 3. Fitur & Target</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>🔎 Fitur & Target</h3>", unsafe_allow_html=True)
     selected_features = ["Weight", "Height", "FCVC", "FAVC", "family_history_with_overweight", "NCP", "Age", "MTRANS"]
     target = "NObeyesdad"
     fitur_html = "<ul style='margin-bottom:0;padding-left:18px;'>" + ''.join([f"<li>{f}</li>" for f in selected_features]) + "</ul>"
@@ -112,16 +112,24 @@ def tampil_fitur_target():
     """, unsafe_allow_html=True)
 
 def tampil_normalisasi():
-    st.markdown("<h3 style='color:#1e3c72;'>⚙️ 4. Data Setelah Normalisasi & Encoding</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>⚙️ Data Setelah Normalisasi & Encoding</h3>", unsafe_allow_html=True)
     st.dataframe(df_norm.head(), use_container_width=True, height=220)
+    st.markdown("<div style='height:22px'></div>", unsafe_allow_html=True)
+
+def tampil_heatmap():
+    st.markdown("<h4 style='color:#1e3c72;margin-top:18px;'>Heatmap Korelasi Semua Fitur</h4>", unsafe_allow_html=True)
+    st.image('heatmap_korelasi.png', caption='Heatmap Korelasi Semua Fitur', use_container_width=True)
+
+def tampil_feature_importance():
+    st.markdown("<h4 style='color:#1e3c72;margin-top:18px;'>Feature Importance (XGBoost)</h4>", unsafe_allow_html=True)
+    st.image('feature_importance_xgb.png', caption='Feature Importance (XGBoost)', use_container_width=True)
 
 def tampil_classification_report():
-    st.markdown("<h3 style='color:#1e3c72;'>📄 5. Classification Report</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#1e3c72;'>📄 Classification Report</h3>", unsafe_allow_html=True)
     st.dataframe(report_df, use_container_width=True, height=390)
 
 def tampil_confusion_matrix():
-    st.markdown("<h3 style='color:#1e3c72;'>🧩 6. Confusion Matrix</h3>", unsafe_allow_html=True)
-    # Ukuran default untuk tampilan berdampingan (all), lebih kecil jika hanya confusion matrix
+    st.markdown("<h3 style='color:#1e3c72;'>🧩 Confusion Matrix</h3>", unsafe_allow_html=True)
     fig_size = (5,4)
     title_size = 13
     label_size = 11
@@ -208,13 +216,24 @@ if sidebar_option == "Tampilkan Semua":
     tampil_cleansing()
     tampil_fitur_target()
     tampil_normalisasi()
-    # Tampilkan classification report & confusion matrix berdampingan
+    col1, col2 = st.columns(2)
+    with col1:
+        tampil_heatmap()
+    with col2:
+        tampil_feature_importance()
     colcr, colcm = st.columns(2)
     with colcr:
         tampil_classification_report()
     with colcm:
         tampil_confusion_matrix()
     tampil_form_prediksi()
+elif sidebar_option == "🖼️ Visualisasi Korelasi & Feature Importance":
+    st.markdown("<h3 style='color:#1e3c72;'>🖼️ Visualisasi Korelasi & Feature Importance</h3>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        tampil_heatmap()
+    with col2:
+        tampil_feature_importance()
 elif sidebar_option == "📁 Dataset Awal":
     tampil_dataset()
 elif sidebar_option == "🧹 Data Setelah Cleansing":
@@ -229,4 +248,3 @@ elif sidebar_option == "🧩 Confusion Matrix":
     tampil_confusion_matrix()
 elif sidebar_option == "🎯 Form Prediksi":
     tampil_form_prediksi()
-
